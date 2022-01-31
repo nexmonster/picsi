@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "picsi"
+version = "0.0.1"
+description = "Nexmon CSI collection of Raspberry Pi"
+authors = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
+maintainers = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
+readme = "README.md"
+repository = "https://github.com/nexmonster/picsi.git"
+keywords = ["Nexmon", "CSI", "Nexmon_CSI", "WiFi"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.7,<4.0"
+tomli = "^2.0.0"
+colorama = "^0.4.4"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+grip = "^4.5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
