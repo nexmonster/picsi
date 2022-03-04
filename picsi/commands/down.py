@@ -2,6 +2,7 @@ __all__ = ["down"]
 
 from pathlib import Path
 import subprocess
+from typer import progressbar
 
 
 def get_uname(flag: str = "-r"):
@@ -37,49 +38,62 @@ def down():
     Disable CSI collection
     """
 
-    dir_picsi: Path = Path("/home/pi/.picsi")
+    with progressbar(length=100) as progress:
 
-    uname_r: str = get_uname("-r")
-    path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
+        # Read uname and path to brcmfmac.ko
+        dir_picsi: Path = Path("/home/pi/.picsi")
 
-    path_brcmfmacko: Path = get_brcmfmacko()
+        uname_r: str = get_uname("-r")
+        path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
 
-    with open("/etc/dhcpcd.conf", "r") as ifile:
-        dhcpcd_conf = ifile.read().replace(
-            "\ndenyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n", ""
-        )
+        path_brcmfmacko: Path = get_brcmfmacko()
 
-    with open("/etc/dhcpcd.conf", "w") as ofile:
-        ofile.write(dhcpcd_conf)
+        progress.update(10)
 
-    del dhcpcd_conf
+        # Modify /etc/dhcpcd.cong
+        with open("/etc/dhcpcd.conf", "r") as ifile:
+            dhcpcd_conf = ifile.read().replace(
+                "\ndenyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n", ""
+            )
 
-    # fmt: off
-    commands: str = [
-        # Restore original firmware and driver
-        ["/usr/bin/cp", f"{path_binaries}/original/brcmfmac.ko", f"{path_brcmfmacko}"],
-        ["/usr/bin/cp", f"{path_binaries}/original/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
-        ["/usr/sbin/depmod", "-a"],
+        with open("/etc/dhcpcd.conf", "w") as ofile:
+            ofile.write(dhcpcd_conf)
 
-        # Enable wpa_supplicant
-        ["/usr/sbin/wpa_supplicant"],
-        ["/usr/bin/systemctl", "enable", "--now", "wpa_supplicant"],
+        del dhcpcd_conf
 
-        # Restart wlan0
-        ["/usr/sbin/ip", "link", "set", "dev", "wlan0", "down"],
-        ["/usr/sbin/ip", "link", "set", "dev", "wlan0", "up"],
-    ]
-    # fmt: on
+        progress.update(10)
 
-    for c in commands:
-        p = subprocess.run(
-            c,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            encoding="utf-8",
-        )
+        # Shell commands
+        # fmt: off
+        commands: str = [
+            # Restore original firmware and driver
+            ["/usr/bin/cp", f"{path_binaries}/original/brcmfmac.ko", f"{path_brcmfmacko}"],
+            ["/usr/bin/cp", f"{path_binaries}/original/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
+            ["/usr/sbin/depmod", "-a"],
 
-        p.check_returncode()
+            # Enable wpa_supplicant
+            # ["/usr/sbin/wpa_supplicant"],
+            ["/usr/bin/systemctl", "enable", "--now", "wpa_supplicant"],
+
+            # Restart wlan0
+            ["/usr/sbin/ip", "link", "set", "dev", "wlan0", "down"],
+            ["/usr/sbin/ip", "link", "set", "dev", "wlan0", "up"],
+        ]
+        # fmt: on
+
+        for c in commands:
+            p = subprocess.run(
+                c,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                encoding="utf-8",
+            )
+
+            p.check_returncode()
+
+            progress.update(10)
+
+        progress.finish()
 
     print("Done.")

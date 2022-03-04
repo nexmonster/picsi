@@ -3,6 +3,7 @@ __all__ = ["install"]
 from pathlib import Path
 import subprocess
 import requests
+from typer import progressbar
 
 
 def get_uname(flag: str = "-r"):
@@ -28,8 +29,6 @@ def get_binaries(
 ) -> None:
     url = f"https://github.com/{repository}/raw/{branch}/{variant}/{uname_r}.tar.xz"
 
-    print(f"Downloading binaries: {url}")
-
     response = requests.get(url)
 
     if response.status_code != 200:
@@ -52,8 +51,6 @@ def get_binaries(
 
 
 def extract_archive(location: Path) -> None:
-    print(f"Extracting archive: {location}")
-
     p = subprocess.run(
         ["/usr/bin/tar", "-xvJf", location, "-C", location.parent],
         stdout=subprocess.PIPE,
@@ -70,53 +67,66 @@ def install():
     Install Nexmon_CSI from binaries
     """
 
-    dir_picsi = Path("/home/pi/.picsi")
+    with progressbar(length=100) as progress:
 
-    dir_picsi.mkdir(exist_ok=True)
+        dir_picsi = Path("/home/pi/.picsi")
+        dir_picsi.mkdir(exist_ok=True)
 
-    uname_r = get_uname("-r")
+        # read uname
+        uname_r = get_uname("-r")
 
-    path_binarchive: Path = dir_picsi / f"bins/{uname_r}.tar.xz"
-    path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
+        path_binarchive: Path = dir_picsi / f"bins/{uname_r}.tar.xz"
+        path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
 
-    if not path_binarchive.is_file():
-        get_binaries(uname_r, path_binarchive)
+        progress.update(10)
 
-    extract_archive(path_binarchive)
+        # Download binaries
+        if not path_binarchive.is_file():
+            get_binaries(uname_r, path_binarchive)
 
-    # fmt: off
-    commands = [
-        # install nexutil
-        ["/usr/bin/ln", "-s", f"{path_binaries}/nexutil/nexutil", "/usr/local/bin/nexutil"],
+        progress.update(10)
 
-        # install makecsiparams
-        ["/usr/bin/ln", "-s", f"{path_binaries}/makecsiparams/makecsiparams", "/usr/local/bin/mcp"],
-        ["/usr/bin/ln", "-s", f"{path_binaries}/makecsiparams/makecsiparams", "/usr/local/bin/makecsiparams"],
+        # Extract binaries
+        extract_archive(path_binarchive)
+        progress.update(10)
 
-        # # install firmware and driver
-        # ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac.ko", "$(modinfo brcmfmac -n)"],
-        # ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
-        # ["/usr/bin/depmod", "-a"],
+        # Shell commands
+        # fmt: off
+        commands = [
+            # install nexutil
+            ["/usr/bin/ln", "-s", f"{path_binaries}/nexutil/nexutil", "/usr/local/bin/nexutil"],
 
-        # unblock WiFi and Bluetooth
-        ["/usr/sbin/rfkill", "unblock", "all"],
+            # install makecsiparams
+            ["/usr/bin/ln", "-s", f"{path_binaries}/makecsiparams/makecsiparams", "/usr/local/bin/mcp"],
+            ["/usr/bin/ln", "-s", f"{path_binaries}/makecsiparams/makecsiparams", "/usr/local/bin/makecsiparams"],
 
-        # Set WiFi country and expand storage
-        ["/usr/bin/raspi-config", "nonint", "do_wifi_country", "US"],
-        ["/usr/bin/raspi-config", "nonint", "do_expand_rootfs"],
-    ]
-    # fmt: on
+            # # install firmware and driver
+            # ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac.ko", "$(modinfo brcmfmac -n)"],
+            # ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
+            # ["/usr/bin/depmod", "-a"],
 
-    for c in commands:
-        p = subprocess.run(
-            c,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            encoding="utf-8",
-        )
+            # unblock WiFi and Bluetooth
+            ["/usr/sbin/rfkill", "unblock", "all"],
 
-        p.check_returncode()
+            # Set WiFi country and expand storage
+            ["/usr/bin/raspi-config", "nonint", "do_wifi_country", "US"],
+            ["/usr/bin/raspi-config", "nonint", "do_expand_rootfs"],
+        ]
+        # fmt: on
+
+        for c in commands:
+            p = subprocess.run(
+                c,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                encoding="utf-8",
+            )
+
+            p.check_returncode()
+            progress.update(10)
+
+        progress.finish()
 
     print(
         """

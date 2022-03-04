@@ -2,6 +2,7 @@ __all__ = ["up"]
 
 from pathlib import Path
 import subprocess
+from typer import progressbar
 
 
 def get_uname(flag: str = "-r"):
@@ -37,40 +38,52 @@ def up():
     Enable CSI collection
     """
 
-    dir_picsi: Path = Path("/home/pi/.picsi")
+    with progressbar(length=100) as progress:
+        # Read uname and path to brcmfmac.ko
+        dir_picsi: Path = Path("/home/pi/.picsi")
 
-    uname_r: str = get_uname("-r")
-    path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
+        uname_r: str = get_uname("-r")
+        path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
 
-    path_brcmfmacko: Path = get_brcmfmacko()
+        path_brcmfmacko: Path = get_brcmfmacko()
 
-    with open("/etc/dhcpcd.conf", "a") as ofile:
-        ofile.write(
-            "\ndenyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n"
-        )
+        progress.update(10)
 
-    # fmt: off
-    commands: str = [
-        # install firmware and driver
-        ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac.ko", f"{path_brcmfmacko}"],
-        ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
-        ["/usr/sbin/depmod", "-a"],
+        # Modify /etc/dhcpcd.cong
+        with open("/etc/dhcpcd.conf", "a") as ofile:
+            ofile.write(
+                "\ndenyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n"
+            )
 
-        # Disable wpa_supplicant
-        ["/usr/bin/killall", "wpa_supplicant"],
-        ["/usr/bin/systemctl", "disable", "--now", "wpa_supplicant"],
-    ]
-    # fmt: on
+        progress.update(10)
 
-    for c in commands:
-        p = subprocess.run(
-            c,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            encoding="utf-8",
-        )
+        # Shell commands
+        # fmt: off
+        commands: str = [
+            # install firmware and driver
+            ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac.ko", f"{path_brcmfmacko}"],
+            ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
+            ["/usr/sbin/depmod", "-a"],
 
-        p.check_returncode()
+            # Disable wpa_supplicant
+            ["/usr/bin/killall", "wpa_supplicant"],
+            ["/usr/bin/systemctl", "disable", "--now", "wpa_supplicant"],
+        ]
+        # fmt: on
+
+        for c in commands:
+            p = subprocess.run(
+                c,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                encoding="utf-8",
+            )
+
+            p.check_returncode()
+
+            progress.update(10)
+
+        progress.finish()
 
     print("Done.")
