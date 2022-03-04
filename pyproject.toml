@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "picsi"
-version = "0.0.5"
+version = "0.0.7"
 description = "CSI collection on Raspberry Pi"
 authors = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
 maintainers = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
@@ -17,6 +17,7 @@ python = ">=3.7,<4.0"
 tomli = "^2.0.0"
 typer = {extras = ["all"], version = "^0.4.0"}
 requests = "^2.27.1"
+halo = "^0.0.31"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

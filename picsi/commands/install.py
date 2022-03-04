@@ -3,7 +3,7 @@ __all__ = ["install"]
 from pathlib import Path
 import subprocess
 import requests
-from typer import progressbar
+from halo import Halo
 
 
 def get_uname(flag: str = "-r"):
@@ -67,70 +67,55 @@ def install():
     Install Nexmon_CSI from binaries
     """
 
-    with progressbar(length=100) as progress:
+    with Halo(spinner="dots") as spinner:
 
         dir_picsi = Path("/home/pi/.picsi")
         dir_picsi.mkdir(exist_ok=True)
 
-        # read uname
+        # Read system info
+        spinner.text = "Reading system info"
         uname_r = get_uname("-r")
 
         path_binarchive: Path = dir_picsi / f"bins/{uname_r}.tar.xz"
         path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
 
-        progress.update(10)
-
         # Download binaries
+        spinner.text = "Downloading binaries"
         if not path_binarchive.is_file():
             get_binaries(uname_r, path_binarchive)
 
-        progress.update(10)
-
         # Extract binaries
+        spinner.text = "Extracting binaries"
         extract_archive(path_binarchive)
-        progress.update(10)
 
-        # Shell commands
         # fmt: off
         commands = [
-            # install nexutil
+            "Installing Nexutil",
             ["/usr/bin/ln", "-s", f"{path_binaries}/nexutil/nexutil", "/usr/local/bin/nexutil"],
 
-            # install makecsiparams
+            "Installing Makecsiparams",
             ["/usr/bin/ln", "-s", f"{path_binaries}/makecsiparams/makecsiparams", "/usr/local/bin/mcp"],
             ["/usr/bin/ln", "-s", f"{path_binaries}/makecsiparams/makecsiparams", "/usr/local/bin/makecsiparams"],
 
-            # # install firmware and driver
-            # ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac.ko", "$(modinfo brcmfmac -n)"],
-            # ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
-            # ["/usr/bin/depmod", "-a"],
-
-            # unblock WiFi and Bluetooth
+            "Setting up WiFi",
             ["/usr/sbin/rfkill", "unblock", "all"],
-
-            # Set WiFi country and expand storage
             ["/usr/bin/raspi-config", "nonint", "do_wifi_country", "US"],
+
+            "Expanding SD card",
             ["/usr/bin/raspi-config", "nonint", "do_expand_rootfs"],
         ]
         # fmt: on
 
         for c in commands:
-            p = subprocess.run(
-                c,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-                encoding="utf-8",
-            )
+            if type(c) == str:
+                spinner.text = c
+            else:
+                p = subprocess.run(
+                    c,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    stdin=subprocess.PIPE,
+                    encoding="utf-8",
+                )
 
-            p.check_returncode()
-            progress.update(10)
-
-        progress.finish()
-
-    print(
-        """
-    Installed nexutil and makecsiparams.
-    Run `picsi up` to enable CSI collection.
-    """
-    )
+                p.check_returncode()
