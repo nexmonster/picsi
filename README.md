@@ -19,10 +19,12 @@ Nexmon CSI utilities for Raspberry Pi
 On a Raspberry Pi 3B+ or 4B, run:  
 
 ```bash
-sudo python3 -m pip install picsi
-
+sudo pip3 install picsi
 sudo picsi install
 ```
+
+**Note**: picsi will not work if not
+installed and run as root.
 
 `picsi` will download the appropriate firmware and binaries for
 your system and install them, or compile from source if they

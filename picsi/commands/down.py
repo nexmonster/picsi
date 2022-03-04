@@ -44,14 +44,15 @@ def down():
 
     path_brcmfmacko: Path = get_brcmfmacko()
 
-    with open("/etc/dhcpcd.conf", "rw") as f:
-        content = f.read()
-
-        f.write(
-            content.replace(
-                "denyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n", ""
-            )
+    with open("/etc/dhcpcd.conf", "r") as ifile:
+        dhcpcd_conf = ifile.read().replace(
+            "\ndenyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n", ""
         )
+
+    with open("/etc/dhcpcd.conf", "w") as ofile:
+        ofile.write(dhcpcd_conf)
+
+    del dhcpcd_conf
 
     # fmt: off
     commands: str = [

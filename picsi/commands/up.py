@@ -45,7 +45,9 @@ def up():
     path_brcmfmacko: Path = get_brcmfmacko()
 
     with open("/etc/dhcpcd.conf", "a") as ofile:
-        ofile.write("denyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n")
+        ofile.write(
+            "\ndenyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n"
+        )
 
     # fmt: off
     commands: str = [
