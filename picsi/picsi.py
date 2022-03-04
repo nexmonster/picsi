@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+import os
+
+if os.getuid() != 0:
+    print("picsi has to be run as root.")
+    print("sudo picsi")
+    exit(1)
+
 import typer
 from click import Group
 

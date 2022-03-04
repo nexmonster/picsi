@@ -58,7 +58,7 @@ def down():
         # Restore original firmware and driver
         ["/usr/bin/cp", f"{path_binaries}/original/brcmfmac.ko", f"{path_brcmfmacko}"],
         ["/usr/bin/cp", f"{path_binaries}/original/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
-        ["/usr/bin/depmod", "-a"],
+        ["/usr/sbin/depmod", "-a"],
 
         # Enable wpa_supplicant
         ["/usr/sbin/wpa_supplicant"],
