@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "picsi"
 version = "0.0.1"
-description = "Nexmon CSI collection of Raspberry Pi"
+description = "CSI collection on Raspberry Pi"
 authors = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
 maintainers = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
 readme = "README.md"
@@ -12,11 +12,14 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"
 tomli = "^2.0.0"
-colorama = "^0.4.4"
+typer = {extras = ["all"], version = "^0.4.0"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 grip = "^4.5.2"
+black = "^22.1.0"
+mypy = "^0.931"
+pylama = "^8.3.7"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
