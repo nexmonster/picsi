@@ -49,6 +49,12 @@ def down():
         path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
         path_brcmfmacko: Path = get_brcmfmacko()
 
+        if (dir_picsi / "picsi_up").is_file():
+            (dir_picsi / "picsi_up").unlink()
+        else:
+            # CSI collection is already disabled
+            return
+
         # Enable wpa_supplicant
         spinner.text = "Enabling wpa_supplicant"
 
@@ -62,15 +68,15 @@ def down():
 
         # fmt: off
         commands: str = [
-            "Enabling wpa_supplicant"
+            "Enabling wpa_supplicant",
             ["/usr/bin/systemctl", "enable", "--now", "wpa_supplicant"],
 
-            "Restoring original firmware"
+            "Restoring original firmware",
             ["/usr/bin/cp", f"{path_binaries}/original/brcmfmac.ko", f"{path_brcmfmacko}"],
             ["/usr/bin/cp", f"{path_binaries}/original/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
             ["/usr/sbin/depmod", "-a"],
 
-            "Restarting WiFi"
+            "Restarting WiFi",
             ["/usr/sbin/ip", "link", "set", "dev", "wlan0", "down"],
             ["/usr/sbin/ip", "link", "set", "dev", "wlan0", "up"],
         ]
@@ -89,3 +95,5 @@ def down():
                 )
 
                 p.check_returncode()
+
+        spinner.text = "Completed"

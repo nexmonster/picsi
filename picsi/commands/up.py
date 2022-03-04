@@ -49,6 +49,12 @@ def up():
         path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
         path_brcmfmacko: Path = get_brcmfmacko()
 
+        if (dir_picsi / "picsi_up").is_file():
+            # CSI collection is already up.
+            return
+        else:
+            (dir_picsi / "picsi_up").touch()
+
         # Disable wpa_supplicant
         spinner.text = "Disabling wpa_supplicant"
         with open("/etc/dhcpcd.conf", "a") as ofile:
@@ -58,11 +64,11 @@ def up():
 
         # fmt: off
         commands: str = [
-            "Disabling wpa_supplicant"
+            "Disabling wpa_supplicant",
             ["/usr/bin/killall", "wpa_supplicant"],
             ["/usr/bin/systemctl", "disable", "--now", "wpa_supplicant"],
 
-            "Applying firmware patches"
+            "Applying firmware patches",
             ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac.ko", f"{path_brcmfmacko}"],
             ["/usr/bin/cp", f"{path_binaries}/patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
             ["/usr/sbin/depmod", "-a"],
