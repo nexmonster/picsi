@@ -1,23 +1,12 @@
 __all__ = ["install"]
 
-from pathlib import Path
-import subprocess
 import requests
+import subprocess
+from pathlib import Path
 from halo import Halo
 
-
-def get_uname(flag: str = "-r"):
-    p = subprocess.run(
-        ["/usr/bin/uname", flag],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        stdin=subprocess.PIPE,
-        encoding="utf-8",
-    )
-
-    p.check_returncode()
-
-    return p.stdout.strip()
+from picsi.vendored.get_uname import get_uname
+from picsi.vendored.run_commands import run_commands
 
 
 def get_binaries(
@@ -69,53 +58,40 @@ def install():
 
     with Halo(spinner="dots") as spinner:
 
-        dir_picsi = Path("/home/pi/.picsi")
-        dir_picsi.mkdir(exist_ok=True)
+        Path("/home/pi/.picsi/").mkdir(exist_ok=True)
+
+        path_nexmon_csi_bin = Path(f"/home/pi/.picsi/bins/{get_uname('-r')}")
+        path_nexmon_csi_bin_tarxz = Path(str(path_nexmon_csi_bin) + ".tar.xz")
 
         # Read system info
         spinner.text = "Reading system info"
         uname_r = get_uname("-r")
 
-        path_binarchive: Path = dir_picsi / f"bins/{uname_r}.tar.xz"
-        path_binaries: Path = dir_picsi / f"bins/{uname_r}/"
-
         # Download binaries
         spinner.text = "Downloading binaries"
-        if not path_binarchive.is_file():
-            get_binaries(uname_r, path_binarchive)
+        if not path_nexmon_csi_bin_tarxz.is_file():
+            get_binaries(uname_r, path_nexmon_csi_bin_tarxz)
 
         # Extract binaries
         spinner.text = "Extracting binaries"
-        extract_archive(path_binarchive)
+        extract_archive(path_nexmon_csi_bin_tarxz)
 
-        # fmt: off
         commands = [
-            "Installing Nexutil",
-            ["/usr/bin/ln", "-s", f"{path_binaries}/nexutil/nexutil", "/usr/local/bin/nexutil"],
+            # fmt: off
+            "# Installing Nexutil",
+            ["/usr/bin/ln", "-s", path_nexmon_csi_bin / "nexutil/nexutil", "/usr/local/bin/nexutil"],
 
-            "Installing Makecsiparams",
-            ["/usr/bin/ln", "-s", f"{path_binaries}/makecsiparams/makecsiparams", "/usr/local/bin/mcp"],
-            ["/usr/bin/ln", "-s", f"{path_binaries}/makecsiparams/makecsiparams", "/usr/local/bin/makecsiparams"],
+            "# Installing Makecsiparams",
+            ["/usr/bin/ln", "-s", path_nexmon_csi_bin / "makecsiparams/makecsiparams", "/usr/local/bin/mcp"],
+            ["/usr/bin/ln", "-s", path_nexmon_csi_bin / "makecsiparams/makecsiparams", "/usr/local/bin/makecsiparams"],
 
-            "Setting up WiFi",
+            "# Setting up WiFi",
             ["/usr/sbin/rfkill", "unblock", "all"],
             ["/usr/bin/raspi-config", "nonint", "do_wifi_country", "US"],
 
-            "Expanding SD card",
+            "# Expanding SD card",
             ["/usr/bin/raspi-config", "nonint", "do_expand_rootfs"],
+            # fmt: on
         ]
-        # fmt: on
 
-        for c in commands:
-            if type(c) == str:
-                spinner.text = c
-            else:
-                p = subprocess.run(
-                    c,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    stdin=subprocess.PIPE,
-                    encoding="utf-8",
-                )
-
-                p.check_returncode()
+        run_commands(commands, spinner)

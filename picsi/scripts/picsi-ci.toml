@@ -1,0 +1,8 @@
+[author]
+name = "Aravind Reddy Voggu"
+email = "aravind.reddy@iiitb.org"
+website = "https://www.avoggu.com/"
+license = "MIT"
+
+[dist]
+link = "https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-01-28/"

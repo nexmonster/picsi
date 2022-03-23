@@ -1,9 +1,9 @@
 __all__ = ["uninstall"]
 
 
-def uninstall():
+def uninstall() -> None:
     """
-    Unnstall Nexmon_CSI
+    Uninstall Nexmon_CSI
     """
 
     print("Uninstall Nexmon_CSI")

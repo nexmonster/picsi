@@ -6,13 +6,13 @@ Nexmon CSI utilities for Raspberry Pi
 
 ## Features
 
-- Superfast installs with pre-compiled binaries
-- Fallback to compiling from source when binaries are not available
-- Easy Start/Stop CSI collection with `picsi up` or `picsi down`
-- Restore original firmware and connect to WiFi after `picsi down`
-- Save CSI to .pcap files
-- Forward CSI packets to other devices for faster collection
-- Manage your CSI collection configuration with Profiles
+- [x] Superfast installs with pre-compiled binaries
+- [x] Compiles from source when binaries are not available
+- [x] Easy Start/Stop CSI collection with `picsi up` or `picsi down`
+- [x] Restore original firmware and connect to WiFi after `picsi down`
+- [ ] Save CSI to .pcap files
+- [ ] Forward CSI packets to other devices for faster collection
+- [ ] Manage your CSI collection configuration with Profiles
 
 ## Install 
 
@@ -97,7 +97,6 @@ Only basic CSI collection via profiles will be added first, and other profile fe
 be added later.
 
 ## Help page
-
 ```
 Usage: picsi {{ COMMAND | help }} [--option] [--option argument]
        COMMAND := {{ install | uninstall | up | down | save | forward | rebuild | help }}
@@ -114,9 +113,9 @@ COMMAND
         Installs Nexmon_CSI.
     U | uninstall
         Uninstalls Nexmon_CSI. Note: Upppercase U.
-    u | up
+    e | Enable
         Enables CSI collection. WiFi will be disabled.
-    d | down
+    d | disable
         Disables CSI collection and enables WiFi.
     s | save
         Save CSI to pcap file

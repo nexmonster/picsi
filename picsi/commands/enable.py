@@ -1,4 +1,4 @@
-__all__ = ["up"]
+__all__ = ["enable"]
 
 from pathlib import Path
 from halo import Halo
@@ -8,7 +8,7 @@ from picsi.vendored.get_uname import get_uname
 from picsi.vendored.get_brcmfmacko import get_brcmfmacko
 
 
-def up():
+def enable():
     """
     Enable CSI collection
     """
