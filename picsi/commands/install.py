@@ -2,6 +2,7 @@ __all__ = ["install"]
 
 import requests
 import subprocess
+import typer
 from pathlib import Path
 from halo import Halo
 
@@ -21,17 +22,18 @@ def get_binaries(
     response = requests.get(url)
 
     if response.status_code != 200:
-        raise Exception(
+        print(
             f"""
-                Error: Couldn't download binaries. http code {response.status_code}
+            Error: Couldn't download binaries. http code {response.status_code}
 
-                Pre-compiled binaries are not uploaded for your kernel's version: {uname_r} yet.
-                Please create a new Issue on Github and tell us which kernel you are using.
+            Pre-compiled binaries are not uploaded for your kernel's version: {uname_r} yet.
+            Please create a new Issue on Github and tell us which kernel you are using.
 
-                Meanwhile, you can build Nexmon_csi from source by running `picsi build`,
-                and then run `picsi install` again.
+            Meanwhile, you can build Nexmon_csi from source by running `picsi build`,
+            and then run `picsi install` again.
         """
         )
+        raise typer.Exit(1)
 
     destination.parent.mkdir(exist_ok=True)
 

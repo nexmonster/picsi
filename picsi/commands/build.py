@@ -185,6 +185,9 @@ def build(
 
         # fmt: off
         run_commands([
-            ["/usr/bin/tar", "-cvJf", f"{path_nexmon_csi_bin}.tar.xz", f"{path_nexmon_csi_bin}"]
+            # When full path is used for tar, that path is preserved in the
+            # archive created.
+            "cd " + str((path_nexmon_csi_bin / "..").resolve()),
+            ["/usr/bin/tar", "-cvJf", f"{get_uname('-r')}.tar.xz", f"{get_uname('-r')}"]
         ], spinner)
         # fmt: on
