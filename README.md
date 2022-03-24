@@ -21,7 +21,7 @@ On a Raspberry Pi 3B+ or 4B, run:
 ```bash
 sudo apt install python3-pip  # install pip for python3
 pip3 install picsi            # install picsi 
-source ~/.bashrc              # update $PATH
+source ~/.profile             # update $PATH
 
 picsi install
 ```
