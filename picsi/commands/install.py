@@ -23,13 +23,13 @@ def get_binaries(
     if response.status_code != 200:
         raise Exception(
             f"""
-                Error: Couldn't download binaries. http {response.status_code}
+                Error: Couldn't download binaries. http code {response.status_code}
 
-                Pre-compiled binaries probably don't exist for your kernel's version: {uname_r}
+                Pre-compiled binaries are not uploaded for your kernel's version: {uname_r} yet.
                 Please create a new Issue on Github and tell us which kernel you are using.
 
-                Meanwhile, you can build Nexmon_csi from source by running 'picsi build',
-                and then run 'picsi install' again.
+                Meanwhile, you can build Nexmon_csi from source by running `picsi build`,
+                and then run `picsi install` again.
         """
         )
 

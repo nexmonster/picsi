@@ -22,10 +22,9 @@ def enable():
         path_brcmfmacko: Path = get_brcmfmacko()
 
         if path_picsi_up.is_file():
-            # CSI collection is already up.
             return
-        else:
-            path_picsi_up.touch()
+
+        path_picsi_up.touch()
 
         # Disable wpa_supplicant
         spinner.text = "Disabling wpa_supplicant"

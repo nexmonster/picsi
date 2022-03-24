@@ -6,40 +6,36 @@ Nexmon CSI utilities for Raspberry Pi
 
 ## Features
 
-- [x] Superfast installs with pre-compiled binaries
-- [x] Compiles from source when binaries are not available
-- [x] Easy Start/Stop CSI collection with `picsi up` or `picsi down`
-- [x] Restore original firmware and connect to WiFi after `picsi down`
-- [ ] Save CSI to .pcap files
-- [ ] Forward CSI packets to other devices for faster collection
-- [ ] Manage your CSI collection configuration with Profiles
+- [x] ⚡ **Superfast** installs with pre-compiled binaries
+- [x] ⌛ Compiles from source when binaries are not available
+- [x] 🚀 Easy Start/Stop CSI collection with `picsi up` or `picsi down`
+- [x] ✨ Restore original firmware and connect to WiFi with `picsi disable`
+- [ ] 💾 Saves CSI to .pcap files
+- [ ] 📡 Forward CSI packets to other devices for faster collection
+- [ ] 📁 Manage your CSI collection configuration with Profiles
 
 ## Install 
 
 On a Raspberry Pi 3B+ or 4B, run:  
 
 ```bash
-sudo pip3 install picsi
-sudo picsi install
+sudo apt install python3-pip  # install pip for python3
+pip3 install picsi            # install picsi 
+source ~/.bashrc              # update $PATH
+
+picsi install
 ```
 
-**Note**: picsi will not work if not
-installed and run as root.
 
 `picsi` will download the appropriate firmware and binaries for
 your system and install them, or compile from source if they
 are not available pre-compiled.
 
-Do Not run this yet. Picsi is not ready for testing.
 
 ## Docs
 
-I'm gonna add more documentation, and probably create a github pages
-site for documentation later (3rd week of February maybe), but for now,
-here is an overview.
-
 Picsi (pronounced pixie?) is a Python tool to install Nexmon CSI on Raspberry Pis.
-It needs Python version >= 3.7, although using the latest version is recommended.
+It needs Python version `>= 3.7`, although using the latest version is recommended.
 
 The best features of picsi, in my opinion, are:
 

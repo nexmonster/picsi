@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "picsi"
-version = "0.0.8"
+version = "0.0.9"
 description = "CSI collection on Raspberry Pi"
 authors = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]
 maintainers = ["Aravind Reddy Voggu <zerodividedby0@gmail.com>"]

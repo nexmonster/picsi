@@ -21,8 +21,10 @@ def disable():
         path_nexmon_csi_bin = Path(f"/home/pi/.picsi/bins/{get_uname('-r')}")
         path_brcmfmacko: Path = get_brcmfmacko()
 
-        if path_picsi_up.is_file():
-            path_picsi_up.unlink()
+        if not path_picsi_up.is_file():
+            return
+
+        path_picsi_up.unlink()
 
         # Enable wpa_supplicant
         spinner.text = "Enabling wpa_supplicant"

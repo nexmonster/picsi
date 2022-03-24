@@ -3,9 +3,18 @@
 import os
 
 if os.getuid() != 0:
-    print("picsi has to be run as root.")
-    print("sudo picsi")
-    exit(1)
+    # Elevate picsi to root if not running as root
+    import sys
+    import subprocess
+    from picsi.vendored.get_output import get_output
+
+    executable = get_output(["which", "picsi"])
+    arguments = sys.argv[1:]
+
+    p = subprocess.run(["sudo", "-E", executable] + sys.argv[1:])
+
+    sys.exit(p.returncode)
+
 
 import typer
 from click import Group
