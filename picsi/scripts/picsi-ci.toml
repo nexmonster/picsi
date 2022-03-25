@@ -1,3 +1,5 @@
+# Place this file at /boot/picsi-ci.toml if you are me.
+
 [author]
 name = "Aravind Reddy Voggu"
 email = "aravind.reddy@iiitb.org"
@@ -6,3 +8,9 @@ license = "MIT"
 
 [dist]
 link = "https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-01-28/"
+
+# I have a git mirror at 10.20.30.41 (LAN IP) to speed up cloning.
+# It won't be used when you're building picsi
+[proxy.git]
+"https://github.com/seemoo-lab/nexmon_csi.git" = "http://10.20.30.41/seemoo-lab/nexmon_csi.git"
+"https://github.com/seemoo-lab/nexmon.git" = "http://10.20.30.41/seemoo-lab/nexmon.git"

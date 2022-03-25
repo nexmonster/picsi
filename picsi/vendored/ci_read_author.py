@@ -1,8 +1,9 @@
 from pathlib import Path
 import tomli
+from typing import Dict
 
 
-def get_author(path_picsi_ci: Path = Path("/boot/picsi-ci.toml")) -> dict[str, str]:
+def ci_read_author(path_picsi_ci: Path = Path("/boot/picsi-ci.toml")) -> Dict[str, str]:
     # NOTE: /boot/picsi-ci.toml is created by me while
     # flashing the Pi. It would not exist on your setup.
 

@@ -7,6 +7,7 @@ from picsi.vendored.mkmanifest import mkmanifest
 from picsi.vendored.run_commands import run_commands
 from picsi.vendored.get_output import get_output
 from picsi.vendored.get_uname import get_uname
+from picsi.vendored.ci_resolve_proxy import ci_resolve_proxy
 
 
 def build(
@@ -58,6 +59,8 @@ def build(
             # fmt: off
             run_commands([
                 "# Installing Kernel headers",
+                ["/usr/bin/mkdir", "-p", "/home/pi/.picsi/kernel-headers"],
+                "cd /home/pi/.picsi/kernel-headers",
                 ["/usr/bin/wget", "https://raw.githubusercontent.com/RPi-Distro/rpi-source/master/rpi-source", "-O", "/usr/local/bin/rpi-source"],
                 ["/usr/bin/chmod", "+x", "/usr/local/bin/rpi-source"],
                 ["/usr/local/bin/rpi-source", "-q", "--tag-update"],
@@ -84,12 +87,12 @@ def build(
             ],
 
             "# Downloading Nexmon",
-            ["/usr/bin/git", "clone", nexmon_url, path_nexmon],
+            ["/usr/bin/git", "clone", ci_resolve_proxy(nexmon_url, "git"), path_nexmon],
             "cd " + str(path_nexmon),
             ["/usr/bin/git", "checkout", nexmon_branch],
 
             "# Downloading Nexmon_CSI",
-            ["/usr/bin/git", "clone", url, path_nexmon_csi],
+            ["/usr/bin/git", "clone", ci_resolve_proxy(url, "git"), path_nexmon_csi],
             "cd " + str(path_nexmon_csi),
             ["/usr/bin/git", "checkout", branch],
 

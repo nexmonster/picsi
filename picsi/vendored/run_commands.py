@@ -2,11 +2,12 @@ import subprocess
 from halo import Halo
 from pathlib import PosixPath
 from datetime import datetime
-from typing import Any, Union
+from typing import Any, Union, List
 
 
 def run_commands(
-    commands: list[Union[str, list[Any]]],
+    # typing.List before py 3.9
+    commands: List[Union[str, List[Any]]],
     spinner: Halo = None,
     check_return: bool = True,
     cwd: str = None,
@@ -54,7 +55,7 @@ def run_commands(
                 
                 time_stop = datetime.now()
 
-                log_time.write(f"{time_start} | {time_stop} | {time_stop - time_start} | {c}")
+                log_time.write(f"{time_start} | {time_stop} | {time_stop - time_start} | {c}\n")
 
                 if check_return:
                     p.check_returncode()

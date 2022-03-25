@@ -2,7 +2,7 @@ from pathlib import Path
 import tomli
 
 
-def get_distlink(path_picsi_ci: Path = Path("/boot/picsi-ci.toml")) -> str:
+def ci_read_distlink(path_picsi_ci: Path = Path("/boot/picsi-ci.toml")) -> str:
     # NOTE: /boot/picsi-ci.toml is created by me while
     # flashing the Pi. It would not exist on your setup.
 
