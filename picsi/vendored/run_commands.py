@@ -1,8 +1,10 @@
 import subprocess
 from halo import Halo
-from pathlib import PosixPath
+from pathlib import Path, PosixPath
 from datetime import datetime
 from typing import Any, Union, List
+
+from picsi.vendored.get_PATH import get_PATH
 
 
 def run_commands(
@@ -14,12 +16,20 @@ def run_commands(
     env: dict = None,
 ) -> None:
 
+    if env is None:
+        env = {"PATH": get_PATH()}
+
+    if "PATH" not in env:
+        env["PATH"] = get_PATH()
+
+    Path("/home/pi/.picsi/logs/").mkdir(exist_ok=True, parents=True)
+
     # fmt: off
     with \
-         open("/home/pi/.picsi/cmd.log", "a") as log_cmd, \
-         open("/home/pi/.picsi/time.log", "a") as log_time, \
-         open("/home/pi/.picsi/stdout.log", "a") as log_stdout, \
-         open("/home/pi/.picsi/stderr.log", "a") as log_stderr:
+         open("/home/pi/.picsi/logs/cmd.log", "a") as log_cmd, \
+         open("/home/pi/.picsi/logs/time.log", "a") as log_time, \
+         open("/home/pi/.picsi/logs/stdout.log", "a") as log_stdout, \
+         open("/home/pi/.picsi/logs/stderr.log", "a") as log_stderr:
         # fmt: on
 
         for c in commands:

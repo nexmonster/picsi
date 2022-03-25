@@ -2,6 +2,8 @@ import subprocess
 from pathlib import Path  # imported for typing
 from typing import List, Dict
 
+from picsi.vendored.get_PATH import get_PATH
+
 
 def get_output(
     command: List[str],
@@ -12,6 +14,12 @@ def get_output(
 
     if cwd is not None:
         cwd = cwd.resolve()
+
+    if env is None:
+        env = {"PATH": get_PATH()}
+
+    if "PATH" not in env:
+        env["PATH"] = get_PATH()
 
     p: subprocess.CompletedProcess = subprocess.run(
         command,
