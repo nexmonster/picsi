@@ -30,25 +30,42 @@ def build(
 
     nexmon_kversion = ".".join(get_uname("-r").split(".")[:2]) + ".y"
 
+    apt_deps = [
+        "automake",
+        "bc",
+        "bison",
+        "flex",
+        "gawk",
+        "git",
+        "libgmp3-dev",
+        "libncurses5-dev",
+        "libssl-dev",
+        "libtool-bin",
+        "make",
+        "qpdf",
+        "raspberrypi-kernel-headers",
+        "texinfo",
+    ]
+
+    if "Python 3" in get_output(["python", "--version"]):
+        # In systems whose default python is python3,
+        # python-is-python2 package is needed for Nexmon
+        apt_deps.append("python-is-python2")
+
     with Halo(spinner="dots") as spinner:
 
         # fmt: off
         run_commands([
             "# Setting up WiFi",
-            ["/usr/sbin/rfkill", "unblock", "all"],
-            ["/usr/bin/raspi-config", "nonint", "do_wifi_country", "US"],
+            ["rfkill", "unblock", "all"],
+            ["raspi-config", "nonint", "do_wifi_country", "US"],
 
             "# Expanding SD card",
-            ["/usr/bin/raspi-config", "nonint", "do_expand_rootfs"],
+            ["raspi-config", "nonint", "do_expand_rootfs"],
 
             "# Installing Dependencies",
-            ["/usr/bin/apt", "update"],
-            ["/usr/bin/apt", "install", "-y",
-                "automake", "bc", "bison", "flex", "gawk", "git",
-                "libgmp3-dev", "libncurses5-dev", "libssl-dev",
-                "libtool-bin", "make", "python-is-python2", "qpdf",
-                "raspberrypi-kernel-headers", "texinfo",
-            ],
+            ["apt", "update", "-y"],
+            ["apt", "install", "-y"] + apt_deps,
         ], spinner)
         # fmt: on
 
@@ -59,61 +76,59 @@ def build(
             # fmt: off
             run_commands([
                 "# Installing Kernel headers",
-                ["/usr/bin/mkdir", "-p", "/home/pi/.picsi/kernel-headers"],
-                "cd /home/pi/.picsi/kernel-headers",
-                ["/usr/bin/wget", "https://raw.githubusercontent.com/RPi-Distro/rpi-source/master/rpi-source", "-O", "/usr/local/bin/rpi-source"],
-                ["/usr/bin/chmod", "+x", "/usr/local/bin/rpi-source"],
-                ["/usr/local/bin/rpi-source", "-q", "--tag-update"],
-                ["/usr/local/bin/rpi-source"]
+                ["wget", "https://raw.githubusercontent.com/RPi-Distro/rpi-source/master/rpi-source", "-O", "/usr/local/bin/rpi-source"],
+                ["chmod", "+x", "/usr/local/bin/rpi-source"],
+                ["rpi-source", "-q", "--tag-update"],
+                ["rpi-source"]
             ], spinner)
             # fmt: on
 
         # fmt: off
         run_commands([
             "# Backing up original binaries",
-            ["/usr/bin/mkdir", "-p",
+            ["mkdir", "-p",
                 path_nexmon_csi_bin / "makecsiparams/",
                 path_nexmon_csi_bin / "nexutil/",
                 path_nexmon_csi_bin / "original/",
                 path_nexmon_csi_bin / "patched/",
             ],
-            ["/usr/bin/cp",
+            ["cp",
                 "/lib/firmware/brcm/brcmfmac43455-sdio.bin",
                 path_nexmon_csi_bin / "original/",
             ],
-            ["/usr/bin/cp",
-                get_output(["/usr/sbin/modinfo", "brcmfmac", "-n"]),
+            ["cp",
+                get_output(["modinfo", "brcmfmac", "-n"]),
                 path_nexmon_csi_bin / "original/",
             ],
 
             "# Downloading Nexmon",
-            ["/usr/bin/git", "clone", ci_resolve_proxy(nexmon_url, "git"), path_nexmon],
+            ["git", "clone", ci_resolve_proxy(nexmon_url, "git"), path_nexmon],
             "cd " + str(path_nexmon),
-            ["/usr/bin/git", "checkout", nexmon_branch],
+            ["git", "checkout", nexmon_branch],
 
             "# Downloading Nexmon_CSI",
-            ["/usr/bin/git", "clone", ci_resolve_proxy(url, "git"), path_nexmon_csi],
+            ["git", "clone", ci_resolve_proxy(url, "git"), path_nexmon_csi],
             "cd " + str(path_nexmon_csi),
-            ["/usr/bin/git", "checkout", branch],
+            ["git", "checkout", branch],
 
             "# Building libISL",
             "cd " + str(path_nexmon / "buildtools/isl-0.10/"),
-            ["/usr/bin/autoreconf", "-f", "-i"],
+            ["autoreconf", "-f", "-i"],
             [path_nexmon / "buildtools/isl-0.10/configure"],
-            ["/usr/bin/make"],
-            ["/usr/bin/make", "install"],
-            ["/usr/bin/ln",
+            ["make"],
+            ["make", "install"],
+            ["ln",
                 "-s", "/usr/local/lib/libisl.so",
                 "/usr/lib/arm-linux-gnueabihf/libisl.so.10"
             ],
 
             "# Building libMPFR",
             "cd " + str(path_nexmon / "buildtools/mpfr-3.1.4/"),
-            ["/usr/bin/autoreconf", "-f", "-i"],
+            ["autoreconf", "-f", "-i"],
             [path_nexmon / "buildtools/mpfr-3.1.4/configure"],
-            ["/usr/bin/make"],
-            ["/usr/bin/make", "install"],
-            ["/usr/bin/ln",
+            ["make"],
+            ["make", "install"],
+            ["ln",
                 "-s", "/usr/local/lib/libmpfr.so",
                 "/usr/lib/arm-linux-gnueabihf/libmpfr.so.4"
             ],
@@ -141,34 +156,34 @@ def build(
         run_commands([
             "# Extracting UCODE, TemplateRAM, and FlashPatches",
             "cd " + str(path_nexmon),
-            ["sudo", "-E", "bash", "-c", "/usr/bin/make"],
+            ["sudo", "-E", "bash", "-c", "make"],
 
             "# Building Nexmon_CSI",
             "cd " + str(path_nexmon_csi),
-            ["sudo", "-E", "bash", "-c", "/usr/bin/make install-firmware"],
+            ["sudo", "-E", "bash", "-c", "make install-firmware"],
 
             "# Building Makecsiparams",
             "cd " + str(path_nexmon_csi / "utils/makecsiparams"),
-            ["sudo", "-E", "bash", "-c", "/usr/bin/make"],
+            ["sudo", "-E", "bash", "-c", "make"],
 
             "# Building Nexutil",
             "cd " + str(path_nexmon / "utilities/nexutil/"),
-            ["sudo", "-E", "bash", "-c", "/usr/bin/make"],
+            ["sudo", "-E", "bash", "-c", "make"],
 
             "# Packaging Binaries",
-            ["/usr/bin/cp",
+            ["cp",
                 path_nexmon / "utilities/nexutil/nexutil", 
                 path_nexmon_csi_bin / "nexutil/"
             ],
-            ["/usr/bin/cp",
+            ["cp",
                 path_nexmon_csi / "utils/makecsiparams/makecsiparams",
                 path_nexmon_csi_bin / "makecsiparams/",
             ],
-            ["/usr/bin/cp",
+            ["cp",
                 path_nexmon_csi / ("brcmfmac_" + nexmon_kversion + "-nexmon/brcmfmac.ko"),
                 path_nexmon_csi_bin / "patched/",
             ],
-            ["/usr/bin/cp",
+            ["cp",
                 path_nexmon_csi / "brcmfmac43455-sdio.bin",
                 path_nexmon_csi_bin / "patched/",
             ],
@@ -191,6 +206,6 @@ def build(
             # When full path is used for tar, that path is preserved in the
             # archive created.
             "cd " + str((path_nexmon_csi_bin / "..").resolve()),
-            ["/usr/bin/tar", "-cvJf", f"{get_uname('-r')}.tar.xz", f"{get_uname('-r')}"]
+            ["tar", "-cvJf", f"{get_uname('-r')}.tar.xz", f"{get_uname('-r')}"]
         ], spinner)
         # fmt: on

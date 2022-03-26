@@ -43,17 +43,17 @@ def disable():
         # fmt: off
         run_commands([
             "# Enabling wpa_supplicant",
-            ["/usr/bin/systemctl", "enable", "--now", "wpa_supplicant"],
+            ["systemctl", "enable", "--now", "wpa_supplicant"],
             ["wpa_supplicant", "-B", "-c", "/etc/wpa_supplicant/wpa_supplicant.conf", "-i", "wlan0"],
 
             "# Restoring original firmware",
-            ["/usr/bin/cp", path_nexmon_csi_bin / "original/brcmfmac.ko", f"{path_brcmfmacko}"],
-            ["/usr/bin/cp", path_nexmon_csi_bin / "original/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
-            ["/usr/sbin/depmod", "-a"],
+            ["cp", path_nexmon_csi_bin / "original/brcmfmac.ko", f"{path_brcmfmacko}"],
+            ["cp", path_nexmon_csi_bin / "original/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
+            ["depmod", "-a"],
 
             "# Restarting WiFi",
-            ["/usr/sbin/ip", "link", "set", "dev", "wlan0", "down"],
-            ["/usr/sbin/ip", "link", "set", "dev", "wlan0", "up"],
+            ["ip", "link", "set", "dev", "wlan0", "down"],
+            ["ip", "link", "set", "dev", "wlan0", "up"],
 
         ], spinner)
         # fmt: on

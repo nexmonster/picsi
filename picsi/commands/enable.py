@@ -40,12 +40,12 @@ def enable():
         # fmt: off
         run_commands([
             "# Disabling wpa_supplicant",
-            ["/usr/bin/killall", "wpa_supplicant"],
-            ["/usr/bin/systemctl", "disable", "--now", "wpa_supplicant"],
+            ["killall", "wpa_supplicant"],
+            ["systemctl", "disable", "--now", "wpa_supplicant"],
 
             "# Applying firmware patches",
-            ["/usr/bin/cp", path_nexmon_csi_bin / "patched/brcmfmac.ko", path_brcmfmacko],
-            ["/usr/bin/cp", path_nexmon_csi_bin / "patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
-            ["/usr/sbin/depmod", "-a"],
+            ["cp", path_nexmon_csi_bin / "patched/brcmfmac.ko", path_brcmfmacko],
+            ["cp", path_nexmon_csi_bin / "patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
+            ["depmod", "-a"],
         ], spinner)
         # fmt: on

@@ -1,10 +1,9 @@
 import subprocess
 from halo import Halo
+from os import environ
 from pathlib import Path, PosixPath
 from datetime import datetime
 from typing import Any, Union, List
-
-from picsi.vendored.get_PATH import get_PATH
 
 
 def run_commands(
@@ -16,20 +15,19 @@ def run_commands(
     env: dict = None,
 ) -> None:
 
-    if env is None:
-        env = {"PATH": get_PATH()}
+    osenv = dict(environ)
 
-    if "PATH" not in env:
-        env["PATH"] = get_PATH()
+    if env is not None:
+        osenv.update(env)
 
     Path("/home/pi/.picsi/logs/").mkdir(exist_ok=True, parents=True)
 
     # fmt: off
     with \
-         open("/home/pi/.picsi/logs/cmd.log", "a") as log_cmd, \
-         open("/home/pi/.picsi/logs/time.log", "a") as log_time, \
-         open("/home/pi/.picsi/logs/stdout.log", "a") as log_stdout, \
-         open("/home/pi/.picsi/logs/stderr.log", "a") as log_stderr:
+         open("/home/pi/.picsi/logs/cmd.log", "a", buffering=1) as log_cmd, \
+         open("/home/pi/.picsi/logs/time.log", "a", buffering=1) as log_time, \
+         open("/home/pi/.picsi/logs/stdout.log", "a", buffering=1) as log_stdout, \
+         open("/home/pi/.picsi/logs/stderr.log", "a", buffering=1) as log_stderr:
         # fmt: on
 
         for c in commands:
@@ -60,7 +58,7 @@ def run_commands(
                     stdin=subprocess.PIPE,
                     encoding="utf-8",
                     cwd=cwd,
-                    env=env,
+                    env=osenv,
                 )
                 
                 time_stop = datetime.now()

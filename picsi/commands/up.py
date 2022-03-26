@@ -1,52 +1,78 @@
 __all__ = ["up"]
 
+import typer
+
 from pathlib import Path
 from halo import Halo
 
 from picsi.vendored.run_commands import run_commands
-from picsi.vendored.get_uname import get_uname
-from picsi.vendored.get_brcmfmacko import get_brcmfmacko
+from picsi.vendored.get_output import get_output
+from picsi.commands.down import down as picsi_down
 
 
-def up():
+def up(
+    chanspec: str = typer.Argument(default="36/80"),
+    macs: str = None,
+    byte: str = None,
+    delay: int = None,
+    coremask: int = 1,
+    nssmask: int = 1,
+    csiparams: str = None,
+):
     """
-    Enable CSI collection
+    Start CSI collection
     """
+
+    Path("/home/pi/.picsi/state").mkdir(exist_ok=True, parents=True)
+
+    path_state_firmware_up = Path("/home/pi/.picsi/state/firmware_is_up")
+    if not path_state_firmware_up.is_file():
+        print(
+            """
+        Error: Couldn't start CSI collection.
+        
+        It seems the firmware is not enabled.
+        Please run `picsi enable`.
+        """
+        )
+
+        raise typer.Exit(1)
+
+    path_state_csi_up = Path("/home/pi/.picsi/state/csi_is_up")
+    if path_state_csi_up.is_file():
+        picsi_down()
+
+    path_state_csi_up.touch()
 
     with Halo(spinner="dots") as spinner:
+        spinner.text = "Starting CSI collection"
+        if csiparams is None:
+            mcp = [
+                "makecsiparams",
+                "-c",
+                chanspec,
+                "-C",
+                coremask,
+                "-N",
+                nssmask,
+            ]
 
-        Path("/home/pi/.picsi/state").mkdir(exist_ok=True, parents=True)
+            if macs is not None:
+                mcp += ["-m", macs]
 
-        path_picsi_up = Path("/home/pi/.picsi/state/firmware_is_up")
-        path_nexmon_csi_bin = Path(f"/home/pi/.picsi/bins/{get_uname('-r')}")
-        path_brcmfmacko: Path = get_brcmfmacko()
+            if byte is not None:
+                mcp += ["-b", byte]
 
-        if path_picsi_up.is_file():
-            # CSI collection is already up.
-            return
-        else:
-            path_picsi_up.touch()
+            if delay is not None:
+                mcp += ["-d", delay]
 
-        # Disable wpa_supplicant
-        spinner.text = "Disabling wpa_supplicant"
-        with open("/etc/dhcpcd.conf", "a") as ofile:
-            ofile.write(
-                "\ndenyinterfaces wlan0\ninterface wlan0\n\tnohook wpa_supplicant\n"
-            )
-
-        # TODO: wpa_supplicant is completely stopped
-        # and disabled. Investigate disabling it on wlan0 only
-        # so poeple can use WiFi adapters and such
+            csiparams = get_output(mcp)
 
         # fmt: off
         run_commands([
-            "# Disabling wpa_supplicant",
-            ["/usr/bin/killall", "wpa_supplicant"],
-            ["/usr/bin/systemctl", "disable", "--now", "wpa_supplicant"],
-
-            "# Applying firmware patches",
-            ["/usr/bin/cp", path_nexmon_csi_bin / "patched/brcmfmac.ko", path_brcmfmacko],
-            ["/usr/bin/cp", path_nexmon_csi_bin / "patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
-            ["/usr/sbin/depmod", "-a"],
+            ["ifconfig", "wlan0", "up"],
+            ["nexutil", "-Iwlan0", "-s500", "-b", "-l34", f"-v{csiparams}"],
+            ["iw", "dev", "wlan0", "interface", "add", "mon0", "type", "monitor"],
+            ["ip", "link", "set", "mon0", "up"],
         ], spinner)
         # fmt: on

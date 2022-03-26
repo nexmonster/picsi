@@ -24,6 +24,8 @@ from picsi.commands.uninstall import uninstall
 from picsi.commands.enable import enable
 from picsi.commands.disable import disable
 from picsi.commands.build import build
+from picsi.commands.up import up
+from picsi.commands.down import down
 
 
 # Typer prints commands in the help menu
@@ -40,6 +42,8 @@ app.command()(install)
 app.command()(uninstall)
 app.command()(enable)
 app.command()(disable)
+app.command()(up)
+app.command()(down)
 app.command()(build)
 
 if __name__ == "__main__":

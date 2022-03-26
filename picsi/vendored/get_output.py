@@ -1,12 +1,11 @@
 import subprocess
+from os import environ
 from pathlib import Path  # imported for typing
-from typing import List, Dict
-
-from picsi.vendored.get_PATH import get_PATH
+from typing import List, Dict, Any
 
 
 def get_output(
-    command: List[str],
+    command: List[Any],
     cwd: Path = None,
     env: Dict[str, str] = None,
     check_return: bool = True,
@@ -15,12 +14,12 @@ def get_output(
     if cwd is not None:
         cwd = cwd.resolve()
 
-    if env is None:
-        env = {"PATH": get_PATH()}
+    osenv = dict(environ)
 
-    if "PATH" not in env:
-        env["PATH"] = get_PATH()
+    if env is not None:
+        osenv.update(env)
 
+    command = [str(c) for c in command]
     p: subprocess.CompletedProcess = subprocess.run(
         command,
         stdout=subprocess.PIPE,
@@ -28,7 +27,7 @@ def get_output(
         stdin=subprocess.PIPE,
         encoding="utf-8",
         cwd=cwd,
-        env=env,
+        env=osenv,
     )
 
     if check_return:

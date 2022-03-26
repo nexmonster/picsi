@@ -3,4 +3,4 @@ from pathlib import Path
 
 
 def ci_read_githash(path_repo: Path):
-    return get_output(["/usr/bin/git", "rev-parse", "--verify", "HEAD"], cwd=path_repo)
+    return get_output(["git", "rev-parse", "--verify", "HEAD"], cwd=path_repo)
