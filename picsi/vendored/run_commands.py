@@ -1,7 +1,7 @@
 import subprocess
 from halo import Halo
 from os import environ
-from pathlib import Path, PosixPath
+from pathlib import Path
 from datetime import datetime
 from typing import Any, Union, List
 
@@ -13,6 +13,7 @@ def run_commands(
     check_return: bool = True,
     cwd: str = None,
     env: dict = None,
+    log_title: str = "picsi",
 ) -> None:
 
     osenv = dict(environ)
@@ -31,9 +32,10 @@ def run_commands(
         # fmt: on
 
         for c in commands:
-            log_cmd.write(f"{c}\n")
-
             if type(c) == str:
+                log_cmd.write(f"\n{c}\n")
+                log_time.write(f"\n{datetime.now(): %b %d %Y %H:%M:%S} {log_title} [{0:7.2f}] 0: {c}\n")
+
                 head = c.split(" ")[0]
                 body = " ".join(c.split(" ")[1:])
 
@@ -45,10 +47,9 @@ def run_commands(
                 elif head in ["cd"]:
                     cwd = body
 
-            elif type(c) == PosixPath:
-                cwd = str(c)
-
             elif type(c) == list:
+                log_cmd.write(f"{c}\n")
+
                 time_start = datetime.now()
 
                 p = subprocess.run(
@@ -63,7 +64,7 @@ def run_commands(
                 
                 time_stop = datetime.now()
 
-                log_time.write(f"{time_start} | {time_stop} | {time_stop - time_start} | {c}\n")
+                log_time.write(f"{time_start: %b %d %Y %H:%M:%S} {log_title} [{(time_stop - time_start).total_seconds():7.2f}] {p.returncode}: {c}\n")
 
                 if check_return:
                     p.check_returncode()

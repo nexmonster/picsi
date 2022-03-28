@@ -55,5 +55,5 @@ def disable():
             ["ip", "link", "set", "dev", "wlan0", "down"],
             ["ip", "link", "set", "dev", "wlan0", "up"],
 
-        ], spinner)
+        ], spinner, log_title='cmd-disable')
         # fmt: on

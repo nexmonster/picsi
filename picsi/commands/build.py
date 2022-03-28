@@ -66,7 +66,7 @@ def build(
             "# Installing Dependencies",
             ["apt", "update", "-y"],
             ["apt", "install", "-y"] + apt_deps,
-        ], spinner)
+        ], spinner, log_title='cmd-build')
         # fmt: on
 
         uname_r = get_uname("-r")
@@ -80,7 +80,7 @@ def build(
                 ["chmod", "+x", "/usr/local/bin/rpi-source"],
                 ["rpi-source", "-q", "--tag-update"],
                 ["rpi-source"]
-            ], spinner)
+            ], spinner, log_title='cmd-build')
             # fmt: on
 
         # fmt: off
@@ -132,7 +132,7 @@ def build(
                 "-s", "/usr/local/lib/libmpfr.so",
                 "/usr/lib/arm-linux-gnueabihf/libmpfr.so.4"
             ],
-        ], spinner)
+        ], spinner, log_title='cmd-build')
         # fmt: on
 
         env = {
@@ -187,7 +187,7 @@ def build(
                 path_nexmon_csi / "brcmfmac43455-sdio.bin",
                 path_nexmon_csi_bin / "patched/",
             ],
-        ], spinner, env=env)
+        ], spinner, env=env, log_title='cmd-build')
         # fmt: on
 
         # Writes the manifest.toml file
@@ -207,5 +207,5 @@ def build(
             # archive created.
             "cd " + str((path_nexmon_csi_bin / "..").resolve()),
             ["tar", "-cvJf", f"{get_uname('-r')}.tar.xz", f"{get_uname('-r')}"]
-        ], spinner)
+        ], spinner, log_title='cmd-build')
         # fmt: on

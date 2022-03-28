@@ -33,5 +33,5 @@ def down():
             ["ip", "link", "set", "mon0", "down"],
             ["iw", "dev", "mon0", "del"],
             ["ifconfig", "wlan0", "up"],
-        ], spinner)
+        ], spinner, log_title='cmd-down')
         # fmt: on

@@ -47,5 +47,5 @@ def enable():
             ["cp", path_nexmon_csi_bin / "patched/brcmfmac.ko", path_brcmfmacko],
             ["cp", path_nexmon_csi_bin / "patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
             ["depmod", "-a"],
-        ], spinner)
+        ], spinner, log_title='cmd-enable')
         # fmt: on

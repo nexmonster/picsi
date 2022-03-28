@@ -84,5 +84,5 @@ def install():
 
             "# Expanding SD card",
             ["raspi-config", "nonint", "do_expand_rootfs"],
-        ], spinner)
+        ], spinner, log_title='cmd-install')
         # fmt: on
