@@ -46,6 +46,9 @@ def enable():
             "# Applying firmware patches",
             ["cp", path_nexmon_csi_bin / "patched/brcmfmac.ko", path_brcmfmacko],
             ["cp", path_nexmon_csi_bin / "patched/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
+            ["rmmod", "brcmfmac"],
+            ["modprobe", "brcmutil"],
+            ["insmod", path_brcmfmacko],
             ["depmod", "-a"],
         ], spinner, log_title='cmd-enable')
         # fmt: on

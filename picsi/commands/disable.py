@@ -42,18 +42,23 @@ def disable():
 
         # fmt: off
         run_commands([
-            "# Enabling wpa_supplicant",
-            ["systemctl", "enable", "--now", "wpa_supplicant"],
-            ["wpa_supplicant", "-B", "-c", "/etc/wpa_supplicant/wpa_supplicant.conf", "-i", "wlan0"],
-
             "# Restoring original firmware",
             ["cp", path_nexmon_csi_bin / "original/brcmfmac.ko", f"{path_brcmfmacko}"],
             ["cp", path_nexmon_csi_bin / "original/brcmfmac43455-sdio.bin", "/lib/firmware/brcm/brcmfmac43455-sdio.bin"],
+            ["rmmod", "brcmfmac"],
+            ["modprobe", "brcmutil"],
+            ["insmod", path_brcmfmacko],
             ["depmod", "-a"],
 
             "# Restarting WiFi",
             ["ip", "link", "set", "dev", "wlan0", "down"],
             ["ip", "link", "set", "dev", "wlan0", "up"],
 
+            "# Enabling wpa_supplicant",
+            ["systemctl", "enable", "--now", "wpa_supplicant"],
+            ["wpa_supplicant", "-B", "-c", "/etc/wpa_supplicant/wpa_supplicant.conf", "-i", "wlan0"],
+            ["dhcpcd", "wlp2s0"]
         ], spinner, log_title='cmd-disable')
         # fmt: on
+
+        print("Done. If WiFi connectivity is not restored, try rebooting.")
