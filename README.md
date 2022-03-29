@@ -23,7 +23,7 @@ sudo apt install python3-pip  # install pip for python3
 pip3 install picsi            # install picsi 
 source ~/.profile             # update $PATH
 
-picsi install
+picsi install                 # install nexmon_csi
 ```
 
 
@@ -31,6 +31,26 @@ picsi install
 your system and install them, or compile from source if they
 are not available pre-compiled.
 
+## Usage
+```bash
+picsi enable                  # enable nexmon_csi
+picsi up                      # Collect CSI on 36/80
+```
+
+This enables Nexmon_csi, and starts CSI collection on channel 36 with
+bandwidth 80 MHz. You can see the traffic with `tcpdump -i wlan0 dst port 5500`.
+
+More examples:
+```
+picsi up 149/80               # Collect CSI on 149/80
+
+picsi down                    # Stop CSI collection
+picsi disable                 # Restore original WiFi
+
+picsi status                  # See status
+
+picsi --help                  # See the help page
+```
 
 ## Docs
 
@@ -91,76 +111,3 @@ You can also create a set of profiles, and make picsi loop CSI collection over t
 
 Only basic CSI collection via profiles will be added first, and other profile features will
 be added later.
-
-## Help page
-```
-Usage: picsi {{ COMMAND | help }} [--option] [--option argument]
-       COMMAND := {{ install | uninstall | up | down | save | forward | rebuild | help }}
-       OPTION  := {{ --url | --branch | --nexmon-url | --nexmon-branch | --apt-upgrade |
-                    --no-source | --no-binaries | --binary-url }}
-
-Examples: picsi help
-          picsi install
-          picsi install --url \"$NEX_REPO_URL\" --no-source
-
-COMMAND
-
-    i | install
-        Installs Nexmon_CSI.
-    U | uninstall
-        Uninstalls Nexmon_CSI. Note: Upppercase U.
-    e | Enable
-        Enables CSI collection. WiFi will be disabled.
-    d | disable
-        Disables CSI collection and enables WiFi.
-    s | save
-        Save CSI to pcap file
-    f | forward | fw
-        Forward CSI packets to another IP
-    r | rebuild
-        Rebuilds the Nexmon_CSI from source.
-    h | help
-        Shows this help page.
-
-OPTION
-
-    --url
-        URL for the Nexmon_CSI repository to git clone.
-        The default value is 'https://github.com/nexmonster/nexmon_csi.git'
-    
-    --branch
-        The git branch name in the cloned repository to
-        use. The default value is 'master'.
-        A commit hash or git object hash would work too.
-
-    --nexmon-url
-        URL for the Nexmon base repository to git clone.
-        The default value is 'https://github.com/seemoo-lab/nexmon.git',
-
-    --nexmon-branch
-        The git branch in the cloned repository to
-        use. The default is value 'master'.
-        A commit hash, or git object hash would work too.
-    
-    --apt-upgrade
-        Runs apt upgrade before installing. Not recommended.
-        Running apt upgrade might upgrade your kernel.
-
-    --no-source
-        Prevent Nex from compiling Nexmon_CSI from source. If this flag
-        is not present, Nex will fall back to compiling Nexmon_CSI from
-        source when pre-compiled binaries are not available.
-
-    --no-binaries
-        Nex tries to use pre-compiled binaries when available,
-        and will fall back to compiling Nexmon_CSI from source when not.
-        Supply this flag to prevent use of pre-compiled binaries.
-
-    --binary-url
-        URL for the repository with precompiled binaries.
-        Default URL is 'https://github.com/nexmonster/nexcsi-bin.git'.
-
-Notes:
-    WiFi will be unavailable for use when Nexmon_CSI is being used.
-    Use an Ethernet cable or a second WiFi adapter if you're using SSH.
-```
