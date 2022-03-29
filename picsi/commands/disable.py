@@ -14,14 +14,6 @@ def disable():
     Disable CSI collection
     """
 
-    # Check if picsi has been installed
-    state_picsi_is_installed = Path("/home/pi/.picsi/state/picsi_is_installed")
-    state_picsi_is_installed.parent.mkdir(exist_ok=True, parents=True)
-
-    if not state_picsi_is_installed.is_file():
-        print("Error. Have you run `picsi install`?")
-        raise Exit(10)
-
     # Check if firmware is already disabled.
     state_firmware_is_patched = Path("/home/pi/.picsi/state/firmware_is_patched")
     state_firmware_is_patched.parent.mkdir(exist_ok=True, parents=True)
@@ -70,7 +62,7 @@ def disable():
             ["wpa_supplicant", "-B", "-c", "/etc/wpa_supplicant/wpa_supplicant.conf", "-i", "wlan0"],
             ["dhcpcd", "wlan0"],
 
-            "# Restarting WiFi",
+            "# Restarting wlan0",
             ["ip", "link", "set", "dev", "wlan0", "down"],
             ["ip", "link", "set", "dev", "wlan0", "up"],
         ], spinner, log_title='cmd-disable')
