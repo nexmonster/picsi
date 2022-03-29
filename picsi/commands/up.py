@@ -61,8 +61,8 @@ def up(
 
             csiparams = get_output(mcp)
 
-            print("Channel/Bandwidth: {chanspec}")
-            print("Csiparams: {csiparams}")
+            print(f"Channel/Bandwidth: {chanspec}")
+            print(f"Csiparams: {csiparams}")
 
         # fmt: off
         run_commands([

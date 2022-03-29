@@ -1,6 +1,7 @@
 __all__ = ["status"]
 
 from pathlib import Path
+from picsi.vendored.get_output import get_output
 
 
 def status():
@@ -23,6 +24,8 @@ def status():
         print("Firmware enabled: No")
 
     if state_csicollection_is_up.exists():
+        chanspec = get_output(["nexutil", "-k"])
         print("CSI collection running: Yes")
+        print(f"chanspec: {chanspec}")
     else:
         print("CSI collection running: No")
