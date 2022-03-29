@@ -13,6 +13,7 @@ if os.getuid() != 0:
 
     p = subprocess.run(["sudo", "-E", executable] + sys.argv[1:])
 
+    get_output(["chown", "-R", "pi:pi", "/home/pi/.picsi"])
     sys.exit(p.returncode)
 
 
