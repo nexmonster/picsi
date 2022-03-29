@@ -1,10 +1,8 @@
 __all__ = ["down"]
 
-import typer
 
 from pathlib import Path
 from halo import Halo
-
 from picsi.vendored.run_commands import run_commands
 from picsi.vendored.get_output import get_output
 
@@ -14,13 +12,12 @@ def down():
     Stop CSI collection
     """
 
-    Path("/home/pi/.picsi/state").mkdir(exist_ok=True, parents=True)
+    state_csicollection_is_up = Path("/var/run/picsi/state/csicollection_is_up")
+    state_csicollection_is_up.parent.mkdir(exist_ok=True, parents=True)
 
-    path_state_csi_up = Path("/home/pi/.picsi/state/csi_is_up")
-    if not path_state_csi_up.is_file():
-        raise typer.Exit(0)
-
-    path_state_csi_up.unlink()
+    if not state_csicollection_is_up.is_file():
+        print("CSI collection is not running.")
+        return
 
     with Halo(spinner="dots") as spinner:
         spinner.text = "Stopping CSI collection"
@@ -29,9 +26,17 @@ def down():
 
         # fmt: off
         run_commands([
+            "# Stopping CSI collection",
             ["nexutil", "-Iwlan0", "-s500", "-b", "-l34", f"-v{csiparams}"],
+
+            "# Removing mon0",
             ["ip", "link", "set", "mon0", "down"],
             ["iw", "dev", "mon0", "del"],
-            ["ifconfig", "wlan0", "up"],
+
+            "# Restarting wlan0",
+            ["ip", "link", "set", "dev", "wlan0", "down"],
+            ["ip", "link", "set", "dev", "wlan0", "up"],
         ], spinner, log_title='cmd-down')
         # fmt: on
+
+        state_csicollection_is_up.unlink()
