@@ -12,6 +12,7 @@ def down():
     Stop CSI collection
     """
 
+    # Check if csi collection is not running
     state_csicollection_is_up = Path("/var/run/picsi/state/csicollection_is_up")
     state_csicollection_is_up.parent.mkdir(exist_ok=True, parents=True)
 

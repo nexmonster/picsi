@@ -13,7 +13,7 @@ def enable():
     Enable CSI collection
     """
 
-    # Check if picsi has been installed
+    # Check if picsi is not installed
     state_picsi_is_installed = Path("/home/pi/.picsi/state/picsi_is_installed")
     state_picsi_is_installed.parent.mkdir(exist_ok=True, parents=True)
 

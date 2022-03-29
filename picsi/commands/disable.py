@@ -2,7 +2,6 @@ __all__ = ["disable"]
 
 from pathlib import Path
 from halo import Halo
-from typer import Exit
 from picsi.vendored.run_commands import run_commands
 from picsi.vendored.get_uname import get_uname
 from picsi.vendored.get_brcmfmacko import get_brcmfmacko

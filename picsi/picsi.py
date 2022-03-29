@@ -2,8 +2,8 @@
 
 import os
 
+# Elevate picsi to root if not running as root
 if os.getuid() != 0:
-    # Elevate picsi to root if not running as root
     import sys
     import subprocess
     from picsi.vendored.get_output import get_output
@@ -26,6 +26,7 @@ from picsi.commands.disable import disable
 from picsi.commands.build import build
 from picsi.commands.up import up
 from picsi.commands.down import down
+from picsi.commands.status import status
 
 
 # Typer prints commands in the help menu
@@ -44,6 +45,7 @@ app.command()(enable)
 app.command()(disable)
 app.command()(up)
 app.command()(down)
+app.command()(status)
 app.command()(build)
 
 if __name__ == "__main__":

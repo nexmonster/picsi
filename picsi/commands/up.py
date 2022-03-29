@@ -1,17 +1,16 @@
 __all__ = ["up"]
 
-import typer
 
 from pathlib import Path
 from halo import Halo
-
+from typer import Argument, Exit
 from picsi.vendored.run_commands import run_commands
 from picsi.vendored.get_output import get_output
-from picsi.commands.down import down as picsi_down
+from picsi.commands.down import down as cmd_down
 
 
 def up(
-    chanspec: str = typer.Argument(default="36/80"),
+    chanspec: str = Argument(default="36/80"),
     macs: str = None,
     byte: str = None,
     delay: int = None,
@@ -23,30 +22,24 @@ def up(
     Start CSI collection
     """
 
-    Path("/home/pi/.picsi/state").mkdir(exist_ok=True, parents=True)
+    # Check if firmware is disabled
+    state_firmware_is_patched = Path("/home/pi/.picsi/state/firmware_is_patched")
+    state_firmware_is_patched.parent.mkdir(exist_ok=True, parents=True)
 
-    path_state_firmware_up = Path("/home/pi/.picsi/state/firmware_is_up")
-    if not path_state_firmware_up.is_file():
-        print(
-            """
-        Error: Couldn't start CSI collection.
-        
-        It seems the firmware is not enabled.
-        Please run `picsi enable`.
-        """
-        )
+    if not state_firmware_is_patched.is_file():
+        print("Error. You need to run `picsi enable` before you can do this.")
+        raise Exit(10)
 
-        raise typer.Exit(1)
+    # Check if CSI collection is already running
+    state_csicollection_is_up = Path("/var/run/picsi/state/csicollection_is_up")
+    state_csicollection_is_up.parent.mkdir(exist_ok=True, parents=True)
 
-    path_state_csi_up = Path("/home/pi/.picsi/state/csi_is_up")
-    if path_state_csi_up.is_file():
-        picsi_down()
-
-    path_state_csi_up.touch()
+    if state_csicollection_is_up.is_file():
+        cmd_down()
 
     with Halo(spinner="dots") as spinner:
-        spinner.text = "Starting CSI collection"
         if csiparams is None:
+            spinner.text = "Generating CSI Params"
             mcp = [
                 "makecsiparams",
                 "-c",
@@ -70,9 +63,14 @@ def up(
 
         # fmt: off
         run_commands([
-            ["ifconfig", "wlan0", "up"],
+            "# Starting CSI collection",
+            ["ip", "link", "set", "dev", "wlan0", "up"],
             ["nexutil", "-Iwlan0", "-s500", "-b", "-l34", f"-v{csiparams}"],
+
+            "# Setting up mon0",
             ["iw", "dev", "wlan0", "interface", "add", "mon0", "type", "monitor"],
             ["ip", "link", "set", "mon0", "up"],
         ], spinner, log_title='cmd-up')
         # fmt: on
+
+        state_csicollection_is_up.touch()

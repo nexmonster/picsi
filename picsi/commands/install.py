@@ -1,7 +1,7 @@
 __all__ = ["install"]
 
 import requests
-import typer
+from typer import Exit
 from pathlib import Path
 from halo import Halo
 
@@ -32,7 +32,7 @@ def get_binaries(
         and then run `picsi install` again.
         """
         )
-        raise typer.Exit(1)
+        raise Exit(1)
 
     destination.parent.mkdir(exist_ok=True)
 
@@ -48,6 +48,14 @@ def install():
     """
     Install Nexmon_CSI from binaries
     """
+
+    # Check if picsi is already installed
+    state_picsi_is_installed = Path("/home/pi/.picsi/state/picsi_is_installed")
+    state_picsi_is_installed.parent.mkdir(exist_ok=True, parents=True)
+
+    if state_picsi_is_installed.is_file():
+        print("Error. Firmware is already installed.")
+        raise Exit(10)
 
     with Halo(spinner="dots") as spinner:
 
@@ -86,3 +94,5 @@ def install():
             ["raspi-config", "nonint", "do_expand_rootfs"],
         ], spinner, log_title='cmd-install')
         # fmt: on
+
+        state_picsi_is_installed.touch()
