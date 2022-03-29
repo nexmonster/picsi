@@ -57,7 +57,7 @@ def disable():
             ["depmod", "-a"],
 
             "# Enabling wpa_supplicant on wlan0",
-            ["systemctl", "enable", "--now", "wpa_supplicant"],
+            ["systemctl", "enable", "wpa_supplicant"],
             ["wpa_supplicant", "-B", "-c", "/etc/wpa_supplicant/wpa_supplicant.conf", "-i", "wlan0"],
             ["dhcpcd", "wlan0"],
 
