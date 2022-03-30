@@ -61,9 +61,6 @@ def up(
 
             csiparams = get_output(mcp)
 
-            print(f"Channel/Bandwidth: {chanspec}")
-            print(f"Csiparams: {csiparams}")
-
         # fmt: off
         run_commands([
             "# Starting CSI collection",
@@ -77,3 +74,6 @@ def up(
         # fmt: on
 
         state_csicollection_is_up.touch()
+
+    print(f"Channel/Bandwidth: {chanspec}")
+    print(f"Csiparams: {csiparams}")
