@@ -48,6 +48,12 @@ def run_commands(
                     cwd = body
 
             elif type(c) == list:
+                current_check_return = True
+
+                if c[0] == "nocheck":
+                    current_check_return = False
+                    c = c[1:]
+
                 log_cmd.write(f"{c}\n")
 
                 time_start = datetime.now()
@@ -66,5 +72,5 @@ def run_commands(
 
                 log_time.write(f"{time_start: %b %d %Y %H:%M:%S} {log_title} [{(time_stop - time_start).total_seconds():7.2f}] {p.returncode}: {c}\n")
 
-                if check_return:
+                if check_return and current_check_return:
                     p.check_returncode()

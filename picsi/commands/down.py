@@ -23,6 +23,8 @@ def down():
     with Halo(spinner="dots") as spinner:
         spinner.text = "Stopping CSI collection"
 
+        state_csicollection_is_up.unlink()
+
         csiparams = get_output(["makecsiparams", "-e", "0"])
 
         # fmt: off
@@ -37,7 +39,5 @@ def down():
             "# Restarting wlan0",
             ["ip", "link", "set", "dev", "wlan0", "down"],
             ["ip", "link", "set", "dev", "wlan0", "up"],
-        ], spinner, log_title='cmd-down')
+        ], spinner, check_return=False, log_title='cmd-down')
         # fmt: on
-
-        state_csicollection_is_up.unlink()

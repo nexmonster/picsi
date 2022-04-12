@@ -26,6 +26,6 @@ def status():
     if state_csicollection_is_up.exists():
         chanspec = get_output(["nexutil", "-k"])
         print("CSI collection running: Yes")
-        print(f"chanspec: {chanspec}")
+        print(f"{chanspec}")
     else:
         print("CSI collection running: No")

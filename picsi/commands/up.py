@@ -73,7 +73,29 @@ def up(
         ], spinner, log_title='cmd-up')
         # fmt: on
 
-        state_csicollection_is_up.touch()
+        spinner.text = "Checking for errors"
 
-    print(f"Channel/Bandwidth: {chanspec}")
+        is_error = False
+        err_message = None
+
+        if "mon0" not in get_output(["ip", "link", "show", "up"]):
+            is_error = True
+            err_message = "Interface mon0 couldn't be setup properly."
+
+        nexutil_k = get_output(["nexutil", "-k"])
+
+        if "0x6863, 85/160" in nexutil_k:
+            is_error = True
+            err_message = f"Nexutil reported an invalid chanspec.\n{nexutil_k}"
+
+    if is_error:
+        print(f"Error. {err_message}")
+        print("The firmware has probably crashed.")
+        print("Try restarting this pi and run `picsi up` again.")
+        raise Exit(20)
+
+    state_csicollection_is_up.touch()
+
+    if chanspec is not None:
+        print(f"Channel/Bandwidth: {chanspec}")
     print(f"Csiparams: {csiparams}")

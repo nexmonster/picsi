@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 
 # Elevate picsi to root if not running as root
 if os.getuid() != 0:
-    import sys
     import subprocess
     from picsi.vendored.get_output import get_output
 
@@ -19,6 +19,7 @@ else:
 
     get_output(["chown", "-R", "pi:pi", "/home/pi/.picsi"])
 
+# ---------------------------------------------------------------
 
 import typer
 from click import Group
@@ -31,6 +32,34 @@ from picsi.commands.build import build
 from picsi.commands.up import up
 from picsi.commands.down import down
 from picsi.commands.status import status
+from picsi.vendored.get_uname import get_uname
+
+# Check if picsi can run on this kernel
+supported_kernel_versions = ["4.19", "5.4", "5.10"]
+current_kernel_version = ".".join(get_uname("-r").split(".")[:2])
+
+if current_kernel_version not in supported_kernel_versions:
+    print(
+        "Warning: Nexmon_csi is only available for kernel versions: "
+        + ", ".join(supported_kernel_versions)
+        + ".\n"
+        + "You are running Kernel version "
+        + current_kernel_version
+        + "."
+    )
+
+supported_cpu_architectures = ["armv7l", "armv7l+"]
+current_cpu_architecture = get_uname("-m")
+
+if current_cpu_architecture not in supported_cpu_architectures:
+    print(
+        "Warning: Nexmon_csi is only available for architectures: "
+        + ", ".join(supported_cpu_architectures)
+        + ".\n"
+        + "You are running Kernel version "
+        + current_kernel_version
+        + "."
+    )
 
 
 # Typer prints commands in the help menu
