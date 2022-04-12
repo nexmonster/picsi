@@ -1,13 +1,17 @@
 __all__ = ["build"]
 
-from halo import Halo
+
 from pathlib import Path
+from sys import exit as sys_exit
+
+from halo import Halo
 
 from picsi.vendored.mkmanifest import mkmanifest
 from picsi.vendored.run_commands import run_commands
 from picsi.vendored.get_output import get_output
 from picsi.vendored.get_uname import get_uname
 from picsi.vendored.ci_resolve_proxy import ci_resolve_proxy
+from picsi.vendored.check_platform import check_platform
 
 
 def build(
@@ -19,6 +23,11 @@ def build(
     """
     Build Nexmon_CSI from source
     """
+
+    if not check_platform():
+        confirmation = input("Unsupported platform. Do you want to continue? [Y/n]: ")
+        if confirmation.lower() in ["n", "no"]:
+            sys_exit(1)
 
     Path("/home/pi/.picsi/").mkdir(exist_ok=True)
 
